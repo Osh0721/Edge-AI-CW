@@ -4,6 +4,7 @@
 20180402-114759/model-20180402-114759.meta
 /dataset
 /test
+/train_data
 archive (1)/lfw_allnames.csv
 archive (1)/lfw_readme.csv
 archive (1)/matchpairsDevTest.csv
