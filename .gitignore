@@ -16,3 +16,5 @@ archive (1)/pairs.csv
 archive (1)/people.csv
 archive (1)/peopleDevTest.csv
 archive (1)/peopleDevTrain.csv
+face_recognition_classifier.h5
+label_encoder.joblib
