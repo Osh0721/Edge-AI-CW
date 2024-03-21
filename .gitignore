@@ -1,0 +1,20 @@
+20180402-114759/20180402-114759.pb
+20180402-114759/model-20180402-114759.ckpt-275.data-00000-of-00001
+20180402-114759/model-20180402-114759.ckpt-275.index
+20180402-114759/model-20180402-114759.meta
+/dataset
+/test
+/train_data
+/database
+archive (1)/lfw_allnames.csv
+archive (1)/lfw_readme.csv
+archive (1)/matchpairsDevTest.csv
+archive (1)/matchpairsDevTrain.csv
+archive (1)/mismatchpairsDevTest.csv
+archive (1)/mismatchpairsDevTrain.csv
+archive (1)/pairs.csv
+archive (1)/people.csv
+archive (1)/peopleDevTest.csv
+archive (1)/peopleDevTrain.csv
+face_recognition_classifier.h5
+label_encoder.joblib
