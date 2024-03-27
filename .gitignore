@@ -6,6 +6,8 @@
 /test
 /train_data
 /database
+/datasetzzz
+/Dataset
 archive (1)/lfw_allnames.csv
 archive (1)/lfw_readme.csv
 archive (1)/matchpairsDevTest.csv
