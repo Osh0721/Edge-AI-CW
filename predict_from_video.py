@@ -1,0 +1,59 @@
+import cv2 as cv
+import numpy as np
+from mtcnn.mtcnn import MTCNN
+from keras_facenet import FaceNet
+import joblib
+
+# Load the FaceNet model and the trained SVM model
+embedder = FaceNet()
+model = joblib.load('face_recognition_model.pkl')
+encoder = joblib.load('label_encoder.pkl')
+detector = MTCNN()
+
+def get_embedding(face_img):
+    face_img = face_img.astype('float32')
+    face_img = np.expand_dims(face_img, axis=0)
+    embedding = embedder.embeddings(face_img)
+    return embedding[0]
+
+# Sample and process frames from the first 2 seconds of the video
+def get_frames_from_first_2_seconds(video_path, samples=5):
+    cap = cv.VideoCapture(video_path)
+    frame_rate = cap.get(cv.CAP_PROP_FPS)
+    total_frames_in_2_seconds = int(frame_rate * 2)  # 2 seconds of frames
+    frames_to_sample = np.linspace(0, total_frames_in_2_seconds, samples, endpoint=False).astype(int)
+    sampled_frames = []
+    
+    for i in frames_to_sample:
+        cap.set(cv.CAP_PROP_POS_FRAMES, i)
+        ret, frame = cap.read()
+        if ret:
+            rgb_img = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+            faces = detector.detect_faces(rgb_img)
+            for face in faces:
+                x, y, w, h = face['box']
+                face_img = rgb_img[y:y+h, x:x+w]
+                if face_img.size > 0:
+                    sampled_frames.append(cv.resize(face_img, (160, 160)))
+    cap.release()
+    return sampled_frames
+
+# Predict the person from the sampled frames
+def predict_person_from_samples(frames):
+    best_prediction = ("Unknown", 0)  # (Name, confidence)
+    for face in frames:
+        if face is not None:
+            embedding = get_embedding(face)
+            embedding = np.expand_dims(embedding, axis=0)
+            prediction = model.predict(embedding)
+            confidence = model.predict_proba(embedding).max()
+            if confidence > best_prediction[1]:  # Confidence threshold
+                person_name = encoder.inverse_transform(prediction)[0]
+                best_prediction = (person_name, confidence)
+    return best_prediction[0]
+
+# Main
+video_path = "video_clip/WhatsApp Video 2024-03-31 at 11.57.00 AM.mp4"
+sampled_frames = get_frames_from_first_2_seconds(video_path, 5)
+person = predict_person_from_samples(sampled_frames)
+print(f"Predicted person: {person}")
