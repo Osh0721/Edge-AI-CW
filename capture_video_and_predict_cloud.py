@@ -4,7 +4,7 @@ import os
 from mtcnn.mtcnn import MTCNN
 from keras_facenet import FaceNet
 import joblib
-import time 
+import time
 
 # Start timing the entire script execution
 script_start_time = time.time()
@@ -20,33 +20,6 @@ def get_embedding(face_img):
     face_img = np.expand_dims(face_img, axis=0)
     embedding = embedder.embeddings(face_img)
     return embedding[0]
-
-def capture_video(video_path, capture_duration=1, resize_factor=0.2):
-    cap = cv.VideoCapture(0)
-    frame_rate = cap.get(cv.CAP_PROP_FPS)
-    frame_width = int(cap.get(3) * resize_factor)
-    frame_height = int(cap.get(4) * resize_factor)
-    total_frames = int(frame_rate * capture_duration)
-    
-    # Define the codec and create VideoWriter object with lower resolution
-    fourcc = cv.VideoWriter_fourcc(*'mp4v')
-    out = cv.VideoWriter(video_path, fourcc, frame_rate, (frame_width, frame_height))
-    
-    for _ in range(total_frames):
-        ret, frame = cap.read()
-        if ret:
-            # Resize frame
-            resized_frame = cv.resize(frame, (frame_width, frame_height), interpolation=cv.INTER_AREA)
-            out.write(resized_frame)
-            cv.imshow('Capturing Video', resized_frame)
-            if cv.waitKey(1) & 0xFF == ord('q'):
-                break
-        else:
-            break
-    
-    cap.release()
-    out.release()
-    cv.destroyAllWindows()
 
 def get_frames_from_video(video_path, samples=5):
     cap = cv.VideoCapture(video_path)
@@ -83,16 +56,11 @@ def predict_person_from_samples(frames):
     return best_prediction[0]
 
 # Main
-video_folder = "video_clip"
-if not os.path.exists(video_folder):
-    os.makedirs(video_folder)
-video_path = os.path.join(video_folder, "captured_video.mp4")
+# Specify the path to your existing video file here
+video_path = "captured_video.mp4"
 
-# Capture and save a 2-second video
-capture_video(video_path)
-
-# Process captured video and predict person
-sampled_frames = get_frames_from_video(video_path, 5)  # Use all frames from the 2-second video
+# Process the video and predict person
+sampled_frames = get_frames_from_video(video_path, 5)  # Use 5 frames from the video
 person = predict_person_from_samples(sampled_frames)
 
 # Print the predicted person
