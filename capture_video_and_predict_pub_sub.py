@@ -5,7 +5,27 @@ from mtcnn.mtcnn import MTCNN
 from keras_facenet import FaceNet
 import joblib
 import time
+from google.cloud import pubsub_v1  
 
+# Initialize Pub/Sub client
+publisher = pubsub_v1.PublisherClient()
+project_id = "intelligate-security-system"  
+topic_id = "intelligate_pub_sub" 
+topic_path = publisher.topic_path(project_id, topic_id)
+
+def publish_message(message):
+    """Publishes a message to a Pub/Sub topic."""
+    # Data must be a bytestring
+    message_data = message.encode("utf-8")
+    # Publish a message
+    try:
+        publish_future = publisher.publish(topic_path, data=message_data)
+        publish_future.result()  # Verify the publish succeeded
+        print(f"Message published to {topic_path}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+# Your existing code
 # Start timing the entire script execution
 script_start_time = time.time()
 
@@ -56,22 +76,18 @@ def predict_person_from_samples(frames):
     return best_prediction[0]
 
 # Main
-# Specify the path to your existing video file here
-# video_path = f"gs://model1_bucket/captured_video.mp4"
-# target_video = f"/home/samanerendra"
-# os.system(f"gsutil cp {video_path} {target_video}")
-video = "captured_video.mp4"
+video_path = "captured_video.mp4"  # Specify the path to your video file here
 
 # Process the video and predict person
-sampled_frames = get_frames_from_video(video, 5)  # Use 5 frames from the video
+sampled_frames = get_frames_from_video(video_path, 5)  # Use 5 frames from the video
 person = predict_person_from_samples(sampled_frames)
 
-# Print the predicted person
-print(f"Predicted person: {person}")
+# Print and publish the predicted person
+predicted_person_message = f"Predicted person: {person}"
+print(predicted_person_message)
+publish_message(predicted_person_message)  # Publish to Pub/Sub
 
-# End timing the entire script execution
+# End timing the entire script execution and print duration
 script_end_time = time.time()
-
-# Calculate and print the total duration
 total_duration = script_end_time - script_start_time
 print(f"Total script execution took {total_duration:.2f} seconds.")
