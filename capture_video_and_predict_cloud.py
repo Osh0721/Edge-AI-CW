@@ -57,10 +57,10 @@ def predict_person_from_samples(frames):
 
 # Main
 # Specify the path to your existing video file here
-# video_path = f"gs://model1_bucket/captured_video.mp4"
-# target_video = f"/home/samanerendra"
-# os.system(f"gsutil cp {video_path} {target_video}")
-video_path = "captured_video.mp4"
+video_path_vm = f"gs://model1_bucket/captured_video.mp4"
+target_video = f"/home/samanerendra"
+os.system(f"gsutil cp {video_path_vm} {target_video}")
+video_path = "/home/samanerendra/captured_video.mp4"
 
 # Process the video and predict person
 sampled_frames = get_frames_from_video(video_path, 5)  # Use 5 frames from the video
