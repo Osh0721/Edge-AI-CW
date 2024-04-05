@@ -7,7 +7,7 @@ from keras_facenet import FaceNet
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
-import joblib  # For saving model and encoder
+import joblib 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
