@@ -58,7 +58,7 @@ def predict_person_from_samples(frames):
 # Main
 # Specify the path to your existing video file here
 video_path_vm = f"gs://model1_bucket/captured_video.mp4"
-target_video = f"/home/samanerendra/captured_video.mp4"
+target_video = f"/home/samanerendra/Edge-AI-CW/captured_video.mp4"
 os.system(f"gsutil cp {video_path_vm} {target_video}")
 
 
