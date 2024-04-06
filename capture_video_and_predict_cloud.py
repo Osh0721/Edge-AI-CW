@@ -5,6 +5,18 @@ from mtcnn.mtcnn import MTCNN
 from keras_facenet import FaceNet
 import joblib
 import time
+import subprocess
+import os
+
+# Define the path to your repository's root directory
+repo_path = '/home/samanerendra/Edge-AI-CW'
+
+# Ensure you're in the correct directory
+os.chdir(repo_path)
+
+# Pull the latest changes from the repository
+subprocess.run(['git', 'pull'], check=True)
+
 
 # Start timing the entire script execution
 script_start_time = time.time()
@@ -59,8 +71,7 @@ def predict_person_from_samples(frames):
 # Specify the path to your existing video file here
 # video_path_vm = f"gs://model1_bucket/captured_video.mp4"
 # target_video = f"/home/samanerendra"
-os.system(f"cd Edge-AI-CW")
-os.system(f"git pull")
+# os.system(f"gsutil cp {video_path_vm} {target_video}")
 # video_path = "/home/samanerendra/captured_video.mp4"
 video_path = "video_clip/captured_video.mp4"
 
