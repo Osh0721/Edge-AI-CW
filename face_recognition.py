@@ -83,5 +83,5 @@ model = SVC(kernel='linear', probability=True)
 model.fit(X_train, Y_train)
 
 # Save model and encoder
-joblib.dump(model, 'face_recognition_model.pkl')
-joblib.dump(encoder, 'label_encoder.pkl')
+joblib.dump(model, 'trained_model/face_recognition_model.pkl')
+joblib.dump(encoder, 'trained_model/label_encoder.pkl')
