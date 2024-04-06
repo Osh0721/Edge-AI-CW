@@ -1,0 +1,23 @@
+steps:
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - compute
+      - ssh
+      - --zone
+      - 'us-central1-a'
+      - --project
+      - 'intelligate-security-system'
+      - 'inference-instance'
+      - --command
+      - |
+         # Activate the virtual environment
+         source /home/samanerendra/IntelliGate/bin/activate &&
+         # Ensure your current directory is as expected
+         cd /home/samanerendra/Edge-AI-CW &&
+         # Now pull the latest changes from your repository
+         git pull &&
+         # Install any required dependencies
+         pip install -r requirements.txt &&
+         # Run your script
+         python capture_video_and_predict_cloud.py
+timeout: '1200s'  # Adjust timeout to fit your script's needs
