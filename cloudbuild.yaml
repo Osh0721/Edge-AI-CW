@@ -12,5 +12,5 @@ steps:
          source /home/samanerendra/IntelliGate/bin/activate && \
          cd /home/samanerendra/Edge-AI-CW && \
          git pull && \
-         python capture_video_and_predict_cloud.py"
+         python3 capture_video_and_predict_cloud.py"
 timeout: '1200s'  # Adjust timeout to fit your script's needs
