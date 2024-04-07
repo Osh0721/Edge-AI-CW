@@ -18,7 +18,7 @@ repo_path = '/home/samanerendra/Edge-AI-CW'
 os.chdir(repo_path)
 
 # Pull the latest changes from the repository
-subprocess.run(['/usr/bin/git', 'pull'], check=True)
+subprocess.run(['git', 'pull'], check=True)
 
 # Start timing the entire script execution
 script_start_time = time.time()
