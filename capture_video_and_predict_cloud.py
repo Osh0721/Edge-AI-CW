@@ -8,6 +8,7 @@ import time
 import subprocess
 import mysql.connector
 from datetime import datetime
+import pytz
 
 # Define the path to your repository's root directory
 repo_path = '/home/samanerendra/Edge-AI-CW'
@@ -91,12 +92,12 @@ def predict_person_from_samples(frames):
                 person_name = encoder.inverse_transform(prediction)[0]
                 best_prediction = (person_name, confidence)
 
-                # Get current date and time
-                now = datetime.now()
+                # Set timezone to Sri Lanka
+                sl_timezone = pytz.timezone('Asia/Colombo')
+                now = datetime.now(sl_timezone)
                 date = now.strftime('%Y-%m-%d')
                 in_time = now.strftime('%H:%M:%S')
 
-                # Print the prediction along with date and time
                 # Check if the person's name has not been processed yet
                 if person_name != "Unknown" and person_name not in processed_names:
                     print(f"Predicted person: {person_name} at {in_time} on {date}")
