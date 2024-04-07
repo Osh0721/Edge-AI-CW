@@ -11,11 +11,10 @@ from datetime import datetime
 
 # Database configuration
 db_config = {
-    'host': '127.0.0.1',
-    'port': 3306,
-    'user': 'root',
+    'host': '34.168.6.246',
+    'user': 'IntelligateUser',
     'password': 'Intelligate@123',
-    'database': 'Intelligate'
+    'database': 'IntelliGate'
 }
 
 # Define the path to your repository's root directory
