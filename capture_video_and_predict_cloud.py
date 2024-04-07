@@ -9,6 +9,7 @@ import subprocess
 import mysql.connector
 from datetime import datetime
 import pytz
+import sys
 
 
 # Define the path to your repository's root directory
@@ -17,8 +18,19 @@ repo_path = '/home/samanerendra/Edge-AI-CW'
 # Ensure you're in the correct directory
 os.chdir(repo_path)
 
-# Pull the latest changes from the repository
-subprocess.run(['git', 'pull'], check=True)
+# Perform a git pull to update the repository
+try:
+    result = subprocess.run(['git', 'pull'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    print("Git Pull Output:", result.stdout)
+    if "Already up to date." in result.stdout:
+        print("Repository is already up-to-date.")
+    else:
+        print("Repository updated. Verifying changes...")
+        # Optional: Add a small delay to ensure file system is updated
+        time.sleep(2)
+except subprocess.CalledProcessError as e:
+    print("Failed to update repository:", e.stderr)
+    sys.exit(1)
 
 # Start timing the entire script execution
 script_start_time = time.time()
@@ -141,7 +153,6 @@ video_path = "video_clip/captured_video.mp4"
 sampled_frames = get_frames_from_video(video_path, 5)
 person = predict_person_from_samples(sampled_frames)
 
-print('aaa')
 
 # End timing the entire script execution
 script_end_time = time.time()
