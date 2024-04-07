@@ -115,9 +115,6 @@ video_path = "video_clip/captured_video.mp4"
 sampled_frames = get_frames_from_video(video_path, 5)
 person = predict_person_from_samples(sampled_frames)
 
-predicted_person_message = f"Predicted person: {person}"
-print(predicted_person_message)
-
 # End timing the entire script execution
 script_end_time = time.time()
 
