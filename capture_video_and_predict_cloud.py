@@ -20,6 +20,9 @@ os.chdir(repo_path)
 # Pull the latest changes from the repository
 subprocess.run(['git', 'pull'], check=True)
 
+# Pull the latest changes from the repository
+subprocess.run(['git', 'pull'], check=True)
+
 # Start timing the entire script execution
 script_start_time = time.time()
 
@@ -143,6 +146,8 @@ person = predict_person_from_samples(sampled_frames)
 
 # End timing the entire script execution
 script_end_time = time.time()
+
+print('dcwcwd')
 
 # Calculate and print the total duration
 total_duration = script_end_time - script_start_time
