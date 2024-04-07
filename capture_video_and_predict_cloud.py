@@ -78,11 +78,8 @@ def insert_into_db(name, date, in_time):
         cursor.close()
         conn.close()
 
-last_prediction_time = None
-last_predicted_name = None
-
 def predict_person_from_samples(frames):
-    global last_prediction_time, last_predicted_name  # Use the global variables
+    processed_names = set()  # Initialize an empty set to keep track of processed names
     best_prediction = ("Unknown", 0.5)  # (Name, confidence)
     for face in frames:
         if face is not None:
@@ -93,25 +90,19 @@ def predict_person_from_samples(frames):
             if confidence > best_prediction[1]:  # Confidence threshold
                 person_name = encoder.inverse_transform(prediction)[0]
                 best_prediction = (person_name, confidence)
-                
+
                 # Get current date and time
                 now = datetime.now()
                 date = now.strftime('%Y-%m-%d')
                 in_time = now.strftime('%H:%M:%S')
-                
-                # Check if this prediction is close to the last prediction
-                if (person_name != last_predicted_name or 
-                    last_prediction_time is None or 
-                    (now - last_prediction_time).seconds > 60):  # More than 60 seconds apart
-                    
-                    # Update the last prediction time and name
-                    last_prediction_time = now
-                    last_predicted_name = person_name
-                    
-                    # Print the prediction along with date and time
-                    if person_name != "Unknown":
-                        print(f"Predicted person: {person_name} at {in_time} on {date}")
-                        insert_into_db(person_name, date, in_time)
+
+                # Print the prediction along with date and time
+                # Check if the person's name has not been processed yet
+                if person_name != "Unknown" and person_name not in processed_names:
+                    print(f"Predicted person: {person_name} at {in_time} on {date}")
+                    insert_into_db(person_name, date, in_time)
+                    processed_names.add(person_name)  # Add the name to the set of processed names
+
     return best_prediction[0]
 
 
