@@ -137,12 +137,11 @@ def predict_person_from_samples(frames):
 # Specify the path to your existing video file here
 video_path = "video_clip/captured_video.mp4"
 
-# Pull the latest changes from the repository
-subprocess.run(['git', 'pull'], check=True)
-
 # Process the video and predict person
 sampled_frames = get_frames_from_video(video_path, 5)
 person = predict_person_from_samples(sampled_frames)
+
+print('aaa')
 
 # End timing the entire script execution
 script_end_time = time.time()
