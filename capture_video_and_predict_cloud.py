@@ -69,8 +69,8 @@ def get_emp_id_by_name(name):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     try:
-        sql = "SELECT Emp_ID FROM users WHERE Name = %s"
-        cursor.execute(sql, (name,))
+        sql = "SELECT Emp_ID FROM users WHERE name LIKE = %s"
+        cursor.execute(sql, ('%' + name + '%',))
         result = cursor.fetchone()
         if result:
             return result[0]  # Return the emp_id if found
