@@ -9,14 +9,6 @@ import subprocess
 import mysql.connector
 from datetime import datetime
 
-# Database configuration
-db_config = {
-    'host': '34.168.6.246',
-    'user': 'IntelligateUser',
-    'password': 'Intelligate@123',
-    'database': 'IntelliGate'
-}
-
 # Define the path to your repository's root directory
 repo_path = '/home/samanerendra/Edge-AI-CW'
 
@@ -25,6 +17,14 @@ os.chdir(repo_path)
 
 # Pull the latest changes from the repository
 subprocess.run(['git', 'pull'], check=True)
+
+# Database configuration
+db_config = {
+    'host': '34.168.6.246',
+    'user': 'IntelligateUser',
+    'password': 'Intelligate@123',
+    'database': 'IntelliGate'
+}
 
 # Start timing the entire script execution
 script_start_time = time.time()
@@ -113,9 +113,6 @@ video_path = "video_clip/captured_video.mp4"
 # Process the video and predict person
 sampled_frames = get_frames_from_video(video_path, 5)
 person = predict_person_from_samples(sampled_frames)
-
-# Print the predicted person
-print(f"Predicted person: {person}")
 
 # End timing the entire script execution
 script_end_time = time.time()
