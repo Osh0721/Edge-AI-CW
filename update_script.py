@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import os
 
 # Define the path to your repository's root directory
 repo_path = '/home/samanerendra/Edge-AI-CW'
