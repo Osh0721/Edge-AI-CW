@@ -78,7 +78,11 @@ def insert_into_db(name, date, in_time):
         cursor.close()
         conn.close()
 
+last_prediction_time = None
+last_predicted_name = None
+
 def predict_person_from_samples(frames):
+    global last_prediction_time, last_predicted_name  # Use the global variables
     best_prediction = ("Unknown", 0.5)  # (Name, confidence)
     for face in frames:
         if face is not None:
@@ -95,10 +99,19 @@ def predict_person_from_samples(frames):
                 date = now.strftime('%Y-%m-%d')
                 in_time = now.strftime('%H:%M:%S')
                 
-                # Print the prediction along with date and time
-                if person_name != "Unknown":
-                    print(f"Predicted person: {person_name} at {in_time} on {date}")
-                    insert_into_db(person_name, date, in_time)
+                # Check if this prediction is close to the last prediction
+                if (person_name != last_predicted_name or 
+                    last_prediction_time is None or 
+                    (now - last_prediction_time).seconds > 60):  # More than 60 seconds apart
+                    
+                    # Update the last prediction time and name
+                    last_prediction_time = now
+                    last_predicted_name = person_name
+                    
+                    # Print the prediction along with date and time
+                    if person_name != "Unknown":
+                        print(f"Predicted person: {person_name} at {in_time} on {date}")
+                        insert_into_db(person_name, date, in_time)
     return best_prediction[0]
 
 
