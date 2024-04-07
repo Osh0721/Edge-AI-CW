@@ -17,7 +17,7 @@ repo_path = '/home/samanerendra/Edge-AI-CW'
 os.chdir(repo_path)
 
 # Pull the latest changes from the repository
-subprocess.run(['git', 'pull'], check=True)
+subprocess.run(['/usr/bin/git', 'pull'], check=True)
 
 # Database configuration
 db_config = {
@@ -114,6 +114,9 @@ video_path = "video_clip/captured_video.mp4"
 # Process the video and predict person
 sampled_frames = get_frames_from_video(video_path, 5)
 person = predict_person_from_samples(sampled_frames)
+
+predicted_person_message = f"Predicted person: {person}"
+print(predicted_person_message)
 
 # End timing the entire script execution
 script_end_time = time.time()
