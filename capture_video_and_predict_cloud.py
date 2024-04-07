@@ -73,8 +73,10 @@ def get_emp_id_by_name(name):
         cursor.execute(sql, ('%' + name + '%',))
         result = cursor.fetchone()
         if result:
+            print("emp_id found ") 
             return result[0]  # Return the emp_id if found
         else:
+            print("emp_id not found ") 
             return None  # Return None if the name is not found
     except mysql.connector.Error as err:
         print(f"Failed to fetch emp_id: {err}")
