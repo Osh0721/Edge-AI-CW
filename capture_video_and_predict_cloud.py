@@ -67,7 +67,7 @@ def insert_into_db(name, date, in_time):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     try:
-        sql = "INSERT INTO your_table_name (Name, Date, `IN-Time`) VALUES (%s, %s, %s)"
+        sql = "INSERT INTO daily_records (Name, Date, `IN-Time`) VALUES (%s, %s, %s)"
         val = (name, date, in_time)
         cursor.execute(sql, val)
         conn.commit()
