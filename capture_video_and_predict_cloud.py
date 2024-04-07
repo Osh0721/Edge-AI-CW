@@ -64,21 +64,40 @@ def get_frames_from_video(video_path, samples=5):
     cap.release()
     return sampled_frames
 
-def insert_into_db(name, date, in_time):
+def get_emp_id_by_name(name):
     # Connect to the database
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     try:
-        sql = "INSERT INTO daily_records (Name, Date, `IN-Time`) VALUES (%s, %s, %s)"
-        val = (name, date, in_time)
+        sql = "SELECT Emp_ID FROM users WHERE Name = %s"
+        cursor.execute(sql, (name,))
+        result = cursor.fetchone()
+        if result:
+            return result[0]  # Return the emp_id if found
+        else:
+            return None  # Return None if the name is not found
+    except mysql.connector.Error as err:
+        print(f"Failed to fetch emp_id: {err}")
+    finally:
+        cursor.close()
+        conn.close()
+
+def insert_into_db(emp_id, date, in_time):
+    # Connect to the database
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    try:
+        sql = "INSERT INTO daily_records (emp_id, Date, `IN-Time`) VALUES (%s, %s, %s)"
+        val = (emp_id, date, in_time)
         cursor.execute(sql, val)
         conn.commit()
-        print(f"Record inserted for {name} at {in_time} on {date}")
+        print(f"Record inserted for employee ID {emp_id} at {in_time} on {date}")
     except mysql.connector.Error as err:
         print(f"Failed to insert record: {err}")
     finally:
         cursor.close()
         conn.close()
+
 
 def predict_person_from_samples(frames):
     processed_names = set()  # Initialize an empty set to keep track of processed names
@@ -101,8 +120,12 @@ def predict_person_from_samples(frames):
 
                 # Check if the person's name has not been processed yet
                 if person_name != "Unknown" and person_name not in processed_names:
-                    print(f"Predicted person: {person_name} at {in_time} on {date}")
-                    insert_into_db(person_name, date, in_time)
+                    emp_id = get_emp_id_by_name(person_name)
+                    if emp_id is not None:
+                        print(f"Predicted person: {person_name} (Employee ID: {emp_id}) at {in_time} on {date}")
+                        insert_into_db(emp_id, date, in_time)
+                    else:
+                        print(f"No matching employee found for {person_name}. Skipping...")
                     processed_names.add(person_name)  # Add the name to the set of processed names
 
     return best_prediction[0]
