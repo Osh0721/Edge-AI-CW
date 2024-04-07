@@ -6,7 +6,16 @@ from keras_facenet import FaceNet
 import joblib
 import time
 import subprocess
-import os
+import mysql.connector
+from datetime import datetime
+
+# Database configuration
+db_config = {
+    'host': 'Intelligate',
+    'user': 'root',
+    'password': 'Intelligate@123',
+    'database': 'Intelligate'
+}
 
 # Define the path to your repository's root directory
 repo_path = '/home/samanerendra/Edge-AI-CW'
@@ -16,7 +25,6 @@ os.chdir(repo_path)
 
 # Pull the latest changes from the repository
 subprocess.run(['git', 'pull'], check=True)
-
 
 # Start timing the entire script execution
 script_start_time = time.time()
@@ -54,6 +62,22 @@ def get_frames_from_video(video_path, samples=5):
     cap.release()
     return sampled_frames
 
+def insert_into_db(name, date, in_time):
+    # Connect to the database
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    try:
+        sql = "INSERT INTO your_table_name (Name, Date, `IN-Time`) VALUES (%s, %s, %s)"
+        val = (name, date, in_time)
+        cursor.execute(sql, val)
+        conn.commit()
+        print(f"Record inserted for {name} at {in_time} on {date}")
+    except mysql.connector.Error as err:
+        print(f"Failed to insert record: {err}")
+    finally:
+        cursor.close()
+        conn.close()
+
 def predict_person_from_samples(frames):
     best_prediction = ("Unknown", 0.5)  # (Name, confidence)
     for face in frames:
@@ -65,18 +89,25 @@ def predict_person_from_samples(frames):
             if confidence > best_prediction[1]:  # Confidence threshold
                 person_name = encoder.inverse_transform(prediction)[0]
                 best_prediction = (person_name, confidence)
+                
+                # Get current date and time
+                now = datetime.now()
+                date = now.strftime('%Y-%m-%d')
+                in_time = now.strftime('%H:%M:%S')
+                
+                # Print the prediction along with date and time
+                if person_name != "Unknown":
+                    print(f"Predicted person: {person_name} at {in_time} on {date}")
+                    insert_into_db(person_name, date, in_time)
     return best_prediction[0]
 
-# Main
+
+# Main script execution begins here
 # Specify the path to your existing video file here
-# video_path_vm = f"gs://model1_bucket/captured_video.mp4"
-# target_video = f"/home/samanerendra"
-# os.system(f"gsutil cp {video_path_vm} {target_video}")
-# video_path = "/home/samanerendra/captured_video.mp4"
 video_path = "video_clip/captured_video.mp4"
 
 # Process the video and predict person
-sampled_frames = get_frames_from_video(video_path, 5)  # Use 5 frames from the video
+sampled_frames = get_frames_from_video(video_path, 5)
 person = predict_person_from_samples(sampled_frames)
 
 # Print the predicted person
