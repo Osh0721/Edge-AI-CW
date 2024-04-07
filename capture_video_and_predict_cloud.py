@@ -11,7 +11,7 @@ from datetime import datetime
 
 # Database configuration
 db_config = {
-    'host': 'Intelligate',
+    'host': '127.0.0.1',
     'user': 'root',
     'password': 'Intelligate@123',
     'database': 'Intelligate'
