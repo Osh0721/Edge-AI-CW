@@ -153,6 +153,8 @@ video_path = "video_clip/captured_video.mp4"
 sampled_frames = get_frames_from_video(video_path, 5)
 person = predict_person_from_samples(sampled_frames)
 
+print('xxx')
+
 
 # End timing the entire script execution
 script_end_time = time.time()
