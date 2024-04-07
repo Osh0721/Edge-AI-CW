@@ -9,14 +9,6 @@ import subprocess
 import mysql.connector
 from datetime import datetime
 
-# Database configuration
-db_config = {
-    'host': '34.168.6.246',
-    'user': 'IntelligateUser',
-    'password': 'Intelligate@123',
-    'database': 'IntelliGate'
-}
-
 # Define the path to your repository's root directory
 repo_path = '/home/samanerendra/Edge-AI-CW'
 
@@ -25,6 +17,14 @@ os.chdir(repo_path)
 
 # Pull the latest changes from the repository
 subprocess.run(['git', 'pull'], check=True)
+
+# Database configuration
+db_config = {
+    'host': '34.168.6.246',
+    'user': 'IntelligateUser',
+    'password': 'Intelligate@123',
+    'database': 'IntelliGate'
+}
 
 # Start timing the entire script execution
 script_start_time = time.time()
@@ -79,6 +79,7 @@ def insert_into_db(name, date, in_time):
         conn.close()
 
 def predict_person_from_samples(frames):
+    processed_names = set()  # Initialize an empty set to keep track of processed names
     best_prediction = ("Unknown", 0.5)  # (Name, confidence)
     for face in frames:
         if face is not None:
@@ -89,16 +90,19 @@ def predict_person_from_samples(frames):
             if confidence > best_prediction[1]:  # Confidence threshold
                 person_name = encoder.inverse_transform(prediction)[0]
                 best_prediction = (person_name, confidence)
-                
+
                 # Get current date and time
                 now = datetime.now()
                 date = now.strftime('%Y-%m-%d')
                 in_time = now.strftime('%H:%M:%S')
-                
+
                 # Print the prediction along with date and time
-                if person_name != "Unknown":
+                # Check if the person's name has not been processed yet
+                if person_name != "Unknown" and person_name not in processed_names:
                     print(f"Predicted person: {person_name} at {in_time} on {date}")
                     insert_into_db(person_name, date, in_time)
+                    processed_names.add(person_name)  # Add the name to the set of processed names
+
     return best_prediction[0]
 
 
@@ -109,9 +113,6 @@ video_path = "video_clip/captured_video.mp4"
 # Process the video and predict person
 sampled_frames = get_frames_from_video(video_path, 5)
 person = predict_person_from_samples(sampled_frames)
-
-# Print the predicted person
-print(f"Predicted person: {person}")
 
 # End timing the entire script execution
 script_end_time = time.time()
