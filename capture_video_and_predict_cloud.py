@@ -11,7 +11,7 @@ from datetime import datetime
 import pytz
 
 # Start timing the entire script execution
-script_start_time = time.time()
+# script_start_time = time.time()
 
 # Define the path to your repository's root directory
 repo_path = '/home/samanerendra/Edge-AI-CW'
@@ -116,8 +116,8 @@ sampled_frames = get_frames_from_video(video_path, 5)
 person = predict_person_from_samples(sampled_frames)
 
 # End timing the entire script execution
-script_end_time = time.time()
+# script_end_time = time.time()
 
 # Calculate and print the total duration
-total_duration = script_end_time - script_start_time
-print(f"Total script execution took {total_duration:.2f} seconds.")
+# total_duration = script_end_time - script_start_time
+# print(f"Total script execution took {total_duration:.2f} seconds.")
