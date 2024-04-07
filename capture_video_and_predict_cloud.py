@@ -11,10 +11,10 @@ from datetime import datetime
 
 # Database configuration
 db_config = {
-    'host': 'Intelligate',
-    'user': 'root',
+    'host': '34.168.6.246',
+    'user': 'IntelligateUser',
     'password': 'Intelligate@123',
-    'database': 'Intelligate'
+    'database': 'IntelliGate'
 }
 
 # Define the path to your repository's root directory
@@ -67,7 +67,7 @@ def insert_into_db(name, date, in_time):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     try:
-        sql = "INSERT INTO your_table_name (Name, Date, `IN-Time`) VALUES (%s, %s, %s)"
+        sql = "INSERT INTO daily_records (Name, Date, `IN-Time`) VALUES (%s, %s, %s)"
         val = (name, date, in_time)
         cursor.execute(sql, val)
         conn.commit()
