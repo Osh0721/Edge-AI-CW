@@ -11,25 +11,25 @@ from datetime import datetime
 import pytz
 
 
-# # Define the path to your repository's root directory
-# repo_path = '/home/samanerendra/Edge-AI-CW'
+# Define the path to your repository's root directory
+repo_path = '/home/samanerendra/Edge-AI-CW'
 
-# # Ensure you're in the correct directory
-# os.chdir(repo_path)
+# Ensure you're in the correct directory
+os.chdir(repo_path)
 
-# # Pull the latest changes from the repository
-# subprocess.run(['/usr/bin/git', 'pull'], check=True)
+# Pull the latest changes from the repository
+subprocess.run(['/usr/bin/git', 'pull'], check=True)
 
 # Start timing the entire script execution
 script_start_time = time.time()
 
 # Database configuration
-# db_config = {
-#     'host': '34.168.6.246',
-#     'user': 'IntelligateUser',
-#     'password': 'Intelligate@123',
-#     'database': 'IntelliGate'
-# }
+db_config = {
+    'host': '34.168.6.246',
+    'user': 'IntelligateUser',
+    'password': 'Intelligate@123',
+    'database': 'IntelliGate'
+}
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 embedder = FaceNet()
@@ -64,21 +64,21 @@ def get_frames_from_video(video_path, samples=5):
     cap.release()
     return sampled_frames
 
-# def insert_into_db(name, date, in_time):
-#     # Connect to the database
-#     conn = mysql.connector.connect(**db_config)
-#     cursor = conn.cursor()
-#     try:
-#         sql = "INSERT INTO daily_records (Name, Date, `IN-Time`) VALUES (%s, %s, %s)"
-#         val = (name, date, in_time)
-#         cursor.execute(sql, val)
-#         conn.commit()
-#         print(f"Record inserted for {name} at {in_time} on {date}")
-#     except mysql.connector.Error as err:
-#         print(f"Failed to insert record: {err}")
-#     finally:
-#         cursor.close()
-#         conn.close()
+def insert_into_db(name, date, in_time):
+    # Connect to the database
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    try:
+        sql = "INSERT INTO daily_records (Name, Date, `IN-Time`) VALUES (%s, %s, %s)"
+        val = (name, date, in_time)
+        cursor.execute(sql, val)
+        conn.commit()
+        print(f"Record inserted for {name} at {in_time} on {date}")
+    except mysql.connector.Error as err:
+        print(f"Failed to insert record: {err}")
+    finally:
+        cursor.close()
+        conn.close()
 
 def predict_person_from_samples(frames):
     processed_names = set()  # Initialize an empty set to keep track of processed names
@@ -93,17 +93,17 @@ def predict_person_from_samples(frames):
                 person_name = encoder.inverse_transform(prediction)[0]
                 best_prediction = (person_name, confidence)
 
-                # # Set timezone to Sri Lanka
-                # sl_timezone = pytz.timezone('Asia/Colombo')
-                # now = datetime.now(sl_timezone)
-                # date = now.strftime('%Y-%m-%d')
-                # in_time = now.strftime('%H:%M:%S')
+                # Set timezone to Sri Lanka
+                sl_timezone = pytz.timezone('Asia/Colombo')
+                now = datetime.now(sl_timezone)
+                date = now.strftime('%Y-%m-%d')
+                in_time = now.strftime('%H:%M:%S')
 
-                # # Check if the person's name has not been processed yet
-                # if person_name != "Unknown" and person_name not in processed_names:
-                #     print(f"Predicted person: {person_name} at {in_time} on {date}")
-                #     insert_into_db(person_name, date, in_time)
-                #     processed_names.add(person_name)  # Add the name to the set of processed names
+                # Check if the person's name has not been processed yet
+                if person_name != "Unknown" and person_name not in processed_names:
+                    print(f"Predicted person: {person_name} at {in_time} on {date}")
+                    insert_into_db(person_name, date, in_time)
+                    processed_names.add(person_name)  # Add the name to the set of processed names
 
     return best_prediction[0]
 
