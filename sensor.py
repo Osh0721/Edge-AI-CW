@@ -14,47 +14,48 @@ def measure_distance():
     GPIO.output(TRIG_PIN, True)
     time.sleep(0.00001)
     GPIO.output(TRIG_PIN, False)
+    
     while GPIO.input(ECHO_PIN) == 0:
         pulse_start = time.time()
     while GPIO.input(ECHO_PIN) == 1:
         pulse_end = time.time()
+
     pulse_duration = pulse_end - pulse_start
+    distance = (pulse_duration * 34000) / 2
+    return distance / 100  
 
-    # Calculate distance in cm
-    distance = (pulse_duration * 34000) / 2  
-    distance = distance / 100  
-    return distance
-
-#Function to activate webcam
+# Define function to activate webcam
 def activate_webcam():
+    print("Person Detected. Activating webcam!!!")
     # Initialize webcam
     camera = cv2.VideoCapture(0)
+    start_time = time.time()
     
     # Capture video for 5 seconds
-    for i in range(150):  # 30 frames per second * 5 seconds = 150 frames
+    while time.time() - start_time <= 5:
         ret, frame = camera.read()
-        cv2.imshow('Video', frame)
-        cv2.waitKey(33)  # Delay for 33ms (30 fps)
+        cv2.imshow('Webcam', frame)
+        cv2.waitKey(1)
     
     # Release webcam
     camera.release()
     cv2.destroyAllWindows()
+    print("Webcam deactivated.")
 
 try:
     while True:
-        # Measure distance
+        # Measure distance in meters
         dist = measure_distance()
         
-        # Check if distance is 1 meter or below
+        # Check if distance is less than or equal to 1 meter
         if dist <= 1:
-            print("Person detected at a distance of", dist, "meters.")
-            print("Activating webcam...")
-            activate_webcam()
-            print("Webcam activated!")
+            print("Distance:", dist, "m")
+            activate_webcam()  # Activate webcam
+        else:
+            print("Distance:", dist, "m")
+            print("Please move bit towrds the camera")
+            time.sleep(4)  # Wait for 1 second before checking again
         
-        # Add a delay to avoid continuous measurement
-        time.sleep(0.1)
-
 except KeyboardInterrupt:
     # Clean up GPIO
     GPIO.cleanup()
