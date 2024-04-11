@@ -100,7 +100,10 @@ def insert_into_db(emp_id, date, in_time):
 
 def send_signal_to_pi(person_name):
     message = "Unknown" if person_name == "Unknown" else "Recognized"
-    publish.single(MQTT_PATH, payload=message, hostname=MQTT_SERVER)
+    try:
+        publish.single(MQTT_PATH, payload=message, hostname=MQTT_SERVER)
+    except Exception as e:
+        print(f"Failed to send signal to Raspberry Pi: {e}")
 
 
 def predict_person_from_samples(frames):
