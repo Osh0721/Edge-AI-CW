@@ -11,7 +11,6 @@ from datetime import datetime
 import pytz
 import paho.mqtt.publish as publish
 import paho.mqtt.client as mqtt
-import RPi.GPIO as GPIO
 
 
 # Start timing the entire script execution
