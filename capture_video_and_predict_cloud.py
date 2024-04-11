@@ -9,8 +9,7 @@ import subprocess
 import mysql.connector
 from datetime import datetime
 import pytz
-import paho.mqtt.publish as publish
-import paho.mqtt.client as mqtt
+import websocket
 
 
 # Start timing the entire script execution
@@ -29,9 +28,6 @@ embedder = FaceNet()
 model = joblib.load('trained_model/face_recognition_model.pkl')
 encoder = joblib.load('trained_model/label_encoder.pkl')
 detector = MTCNN()
-
-MQTT_SERVER = "192.168.8.119" 
-MQTT_PATH = "person_detected"
 
 
 def get_embedding(face_img):
@@ -99,8 +95,10 @@ def insert_into_db(emp_id, date, in_time):
 
 
 def send_signal_to_pi(person_name):
+    ws = websocket.create_connection("ws://192.168.8.119:9001")
     message = "Unknown" if person_name == "Unknown" else "Recognized"
-    publish.single(MQTT_PATH, payload=message, hostname=MQTT_SERVER)
+    ws.send(message)
+    ws.close()
 
 
 def predict_person_from_samples(frames):
