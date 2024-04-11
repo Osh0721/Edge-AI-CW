@@ -9,28 +9,10 @@ import subprocess
 import mysql.connector
 from datetime import datetime
 import pytz
-import sys
+import paho.mqtt.publish as publish
+import paho.mqtt.client as mqtt
+import RPi.GPIO as GPIO
 
-
-# # Define the path to your repository's root directory
-# repo_path = '/home/samanerendra/Edge-AI-CW'
-
-# # Ensure you're in the correct directory
-# os.chdir(repo_path)
-
-# # Perform a git pull to update the repository
-# try:
-#     result = subprocess.run(['git', 'pull'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-#     print("Git Pull Output:", result.stdout)
-#     if "Already up to date." in result.stdout:
-#         print("Repository is already up-to-date.")
-#     else:
-#         print("Repository updated. Verifying changes...")
-#         # Optional: Add a small delay to ensure file system is updated
-#         time.sleep(2)
-# except subprocess.CalledProcessError as e:
-#     print("Failed to update repository:", e.stderr)
-#     sys.exit(1)
 
 # Start timing the entire script execution
 script_start_time = time.time()
@@ -48,6 +30,10 @@ embedder = FaceNet()
 model = joblib.load('trained_model/face_recognition_model.pkl')
 encoder = joblib.load('trained_model/label_encoder.pkl')
 detector = MTCNN()
+
+MQTT_SERVER = "192.168.8.119" 
+MQTT_PATH = "person_detected"
+
 
 def get_embedding(face_img):
     face_img = face_img.astype('float32')
@@ -113,6 +99,11 @@ def insert_into_db(emp_id, date, in_time):
         conn.close()
 
 
+def send_signal_to_pi(person_name):
+    message = "Unknown" if person_name == "Unknown" else "Recognized"
+    publish.single(MQTT_PATH, payload=message, hostname=MQTT_SERVER)
+
+
 def predict_person_from_samples(frames):
     processed_names = set()  # Initialize an empty set to keep track of processed names
     best_prediction = ("Unknown", 0.5)  # (Name, confidence)
@@ -138,11 +129,15 @@ def predict_person_from_samples(frames):
                     if emp_id is not None:
                         print(f"Predicted person: {person_name} (Employee ID: {emp_id}) at {in_time} on {date}")
                         insert_into_db(emp_id, date, in_time)
+                        send_signal_to_pi(person_name)  # Send signal for recognized person
                     else:
                         print(f"No matching employee found for {person_name}. Skipping...")
                     processed_names.add(person_name)  # Add the name to the set of processed names
+                elif person_name == "Unknown":
+                    send_signal_to_pi("Unknown")  # Send signal for unknown person
 
     return best_prediction[0]
+
 
 
 # Main script execution begins here
