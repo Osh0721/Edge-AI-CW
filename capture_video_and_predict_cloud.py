@@ -9,11 +9,17 @@ import subprocess
 import mysql.connector
 from datetime import datetime
 import pytz
-import requests
-
+from google.cloud import pubsub_v1
+import json
 
 # Start timing the entire script execution
 script_start_time = time.time()
+
+# Configuration for Pub/Sub
+project_id = "intelligate-security-system"
+topic_id = "intelligate_pub_sub"
+publisher = pubsub_v1.PublisherClient()
+topic_path = publisher.topic_path(project_id, topic_id)
 
 # Database configuration
 db_config = {
@@ -124,15 +130,16 @@ def predict_person_from_samples(frames):
 
     return best_prediction[0]
 
-# Function to send prediction to Raspberry Pi
 def send_prediction_to_pi(person_name):
-    url = 'http://192.168.8.119:5000/prediction'  # Replace RASPBERRY_PI_IP with your Raspberry Pi's IP address
+    """Publishes the recognized person's name to the Pub/Sub topic."""
     data = {'result': person_name}
+    data = json.dumps(data).encode("utf-8")
     try:
-        response = requests.post(url, data=data)
-        print("Prediction sent to Raspberry Pi:", response.text)
-    except requests.exceptions.RequestException as e:
-        print("Error sending prediction to Raspberry Pi:", e)
+        publish_future = publisher.publish(topic_path, data)
+        publish_future.result()  # Wait for publish to complete.
+        print("Prediction sent to Raspberry Pi via Pub/Sub")
+    except Exception as e:
+        print("Error sending prediction to Raspberry Pi via Pub/Sub:", e)
 
 
 # Main script execution begins here
