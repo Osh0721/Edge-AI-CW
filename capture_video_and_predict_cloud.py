@@ -126,7 +126,7 @@ def predict_person_from_samples(frames):
 
 # Function to send prediction to Raspberry Pi
 def send_prediction_to_pi(person_name):
-    url = 'http://192.168.8.119:5000/prediction'  # Replace RASPBERRY_PI_IP with your Raspberry Pi's IP address
+    url = 'http://192.168.8.119:8765/prediction'  # Replace RASPBERRY_PI_IP with your Raspberry Pi's IP address
     data = {'result': person_name}
     try:
         response = requests.post(url, data=data)
