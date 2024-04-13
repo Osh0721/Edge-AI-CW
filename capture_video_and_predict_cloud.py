@@ -9,7 +9,7 @@ import subprocess
 import mysql.connector
 from datetime import datetime
 import pytz
-import websocket
+import requests
 
 
 # Start timing the entire script execution
@@ -28,7 +28,6 @@ embedder = FaceNet()
 model = joblib.load('trained_model/face_recognition_model.pkl')
 encoder = joblib.load('trained_model/label_encoder.pkl')
 detector = MTCNN()
-
 
 def get_embedding(face_img):
     face_img = face_img.astype('float32')
@@ -94,47 +93,46 @@ def insert_into_db(emp_id, date, in_time):
         conn.close()
 
 
-def send_signal_to_pi(person_name):
-    ws = websocket.create_connection("ws://192.168.8.119:9001")
-    message = "Unknown" if person_name == "Unknown" else "Recognized"
-    ws.send(message)
-    ws.close()
-
-
 def predict_person_from_samples(frames):
-    processed_names = set()  # Initialize an empty set to keep track of processed names
-    best_prediction = ("Unknown", 0.5)  # (Name, confidence)
+    processed_names = set()
+    best_prediction = ("Unknown", 0.5)
     for face in frames:
         if face is not None:
             embedding = get_embedding(face)
             embedding = np.expand_dims(embedding, axis=0)
             prediction = model.predict(embedding)
             confidence = model.predict_proba(embedding).max()
-            if confidence > best_prediction[1]:  # Confidence threshold
+            if confidence > best_prediction[1]:
                 person_name = encoder.inverse_transform(prediction)[0]
                 best_prediction = (person_name, confidence)
 
-                # Set timezone to Sri Lanka
                 sl_timezone = pytz.timezone('Asia/Colombo')
                 now = datetime.now(sl_timezone)
                 date = now.strftime('%Y-%m-%d')
                 in_time = now.strftime('%H:%M:%S')
 
-                # Check if the person's name has not been processed yet
                 if person_name != "Unknown" and person_name not in processed_names:
                     emp_id = get_emp_id_by_name(person_name)
                     if emp_id is not None:
                         print(f"Predicted person: {person_name} (Employee ID: {emp_id}) at {in_time} on {date}")
                         insert_into_db(emp_id, date, in_time)
-                        send_signal_to_pi(person_name)  # Send signal for recognized person
+                        # Send prediction to Raspberry Pi
+                        send_prediction_to_pi(person_name)  # New line
                     else:
                         print(f"No matching employee found for {person_name}. Skipping...")
-                    processed_names.add(person_name)  # Add the name to the set of processed names
-                elif person_name == "Unknown":
-                    send_signal_to_pi("Unknown")  # Send signal for unknown person
+                    processed_names.add(person_name)
 
     return best_prediction[0]
 
+# Function to send prediction to Raspberry Pi
+def send_prediction_to_pi(person_name):
+    url = 'http://192.168.8.119:5000/prediction'  # Replace RASPBERRY_PI_IP with your Raspberry Pi's IP address
+    data = {'result': person_name}
+    try:
+        response = requests.post(url, data=data)
+        print("Prediction sent to Raspberry Pi:", response.text)
+    except requests.exceptions.RequestException as e:
+        print("Error sending prediction to Raspberry Pi:", e)
 
 
 # Main script execution begins here
