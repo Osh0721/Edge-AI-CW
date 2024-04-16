@@ -82,21 +82,38 @@ def get_emp_id_by_name(name):
         cursor.close()
         conn.close()
 
-def insert_into_db(emp_id, date, in_time):
+def insert_into_db(emp_id, date, current_time):
     # Connect to the database
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
+
     try:
-        sql = "INSERT INTO daily_records (emp_id, Date, `IN-Time`) VALUES (%s, %s, %s)"
-        val = (emp_id, date, in_time)
-        cursor.execute(sql, val)
-        conn.commit()
-        print(f"Record inserted for employee ID {emp_id} at {in_time} on {date}")
+        # Check if there's already a record for today for this employee
+        check_sql = "SELECT `IN-Time`, `OUT-Time` FROM daily_records WHERE emp_id = %s AND Date = %s"
+        cursor.execute(check_sql, (emp_id, date))
+        result = cursor.fetchone()
+
+        if result:
+            # Record exists, update the OUT-Time
+            if result[1] is None or current_time > result[1]:  # Only update if the new OUT-Time is later
+                update_sql = "UPDATE daily_records SET `OUT-Time` = %s WHERE emp_id = %s AND Date = %s"
+                cursor.execute(update_sql, (current_time, emp_id, date))
+                conn.commit()
+                print(f"OUT-Time updated for employee ID {emp_id} to {current_time} on {date}")
+            else:
+                print(f"Existing OUT-Time {result[1]} is later than the current time {current_time}. No update needed.")
+        else:
+            # No record exists, insert new IN-Time
+            insert_sql = "INSERT INTO daily_records (emp_id, Date, `IN-Time`) VALUES (%s, %s, %s)"
+            cursor.execute(insert_sql, (emp_id, date, current_time))
+            conn.commit()
+            print(f"IN-Time recorded for employee ID {emp_id} at {current_time} on {date}")
     except mysql.connector.Error as err:
-        print(f"Failed to insert record: {err}")
+        print(f"Failed to update record: {err}")
     finally:
         cursor.close()
         conn.close()
+
 
 
 def predict_person_from_samples(frames):
