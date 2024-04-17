@@ -96,7 +96,7 @@ def insert_into_db(emp_id, date, current_time):
         if result:
             # Record exists, update the OUT-Time
             if result[1] is None or current_time > result[1]:  # Only update if the new OUT-Time is later
-                update_sql = "UPDATE daily_records SET OUT-Time = %s WHERE emp_id = %s AND Date = %s"
+                update_sql = "UPDATE daily_records SET `OUT-Time` = %s WHERE emp_id = %s AND Date = %s"
                 cursor.execute(update_sql, (current_time, emp_id, date))
                 conn.commit()
                 print(f"OUT-Time updated for employee ID {emp_id} to {current_time} on {date}")
