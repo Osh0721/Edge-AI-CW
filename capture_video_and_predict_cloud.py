@@ -82,21 +82,38 @@ def get_emp_id_by_name(name):
         cursor.close()
         conn.close()
 
-def insert_into_db(emp_id, date, in_time):
+def insert_into_db(emp_id, date, current_time):
     # Connect to the database
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
+
     try:
-        sql = "INSERT INTO daily_records (emp_id, Date, `IN-Time`) VALUES (%s, %s, %s)"
-        val = (emp_id, date, in_time)
-        cursor.execute(sql, val)
-        conn.commit()
-        print(f"Record inserted for employee ID {emp_id} at {in_time} on {date}")
+        # Check if there's already a record for today for this employee
+        check_sql = "SELECT `IN-Time`, `OUT-Time` FROM daily_records WHERE emp_id = %s AND Date = %s"
+        cursor.execute(check_sql, (emp_id, date))
+        result = cursor.fetchone()
+
+        if result:
+            # Record exists, update the OUT-Time
+            if result[1] is None or current_time > result[1]:  # Only update if the new OUT-Time is later
+                update_sql = "UPDATE daily_records SET `OUT-Time` = %s WHERE emp_id = %s AND Date = %s"
+                cursor.execute(update_sql, (current_time, emp_id, date))
+                conn.commit()
+                print(f"OUT-Time updated for employee ID {emp_id} to {current_time} on {date}")
+            else:
+                print(f"Existing OUT-Time {result[1]} is later than the current time {current_time}. No update needed.")
+        else:
+            # No record exists, insert new IN-Time
+            insert_sql = "INSERT INTO daily_records (emp_id, Date, `IN-Time`) VALUES (%s, %s, %s)"
+            cursor.execute(insert_sql, (emp_id, date, current_time))
+            conn.commit()
+            print(f"IN-Time recorded for employee ID {emp_id} at {current_time} on {date}")
     except mysql.connector.Error as err:
-        print(f"Failed to insert record: {err}")
+        print(f"Failed to update record: {err}")
     finally:
         cursor.close()
         conn.close()
+
 
 
 def predict_person_from_samples(frames):
@@ -108,32 +125,27 @@ def predict_person_from_samples(frames):
             embedding = np.expand_dims(embedding, axis=0)
             prediction = model.predict(embedding)
             confidence = model.predict_proba(embedding).max()
-            
-            person_name = encoder.inverse_transform(prediction)[0] if confidence > best_prediction[1] else "Unknown"
-            best_prediction = (person_name, confidence)
+            if confidence > best_prediction[1]:
+                person_name = encoder.inverse_transform(prediction)[0]
+                best_prediction = (person_name, confidence)
 
-            sl_timezone = pytz.timezone('Asia/Colombo')
-            now = datetime.now(sl_timezone)
-            date = now.strftime('%Y-%m-%d')
-            in_time = now.strftime('%H:%M:%S')
+                sl_timezone = pytz.timezone('Asia/Colombo')
+                now = datetime.now(sl_timezone)
+                date = now.strftime('%Y-%m-%d')
+                in_time = now.strftime('%H:%M:%S')
 
-            if person_name != "Unknown":
-                if person_name not in processed_names:
+                if person_name != "Unknown" and person_name not in processed_names:
                     emp_id = get_emp_id_by_name(person_name)
                     if emp_id is not None:
                         print(f"Predicted person: {person_name} (Employee ID: {emp_id}) at {in_time} on {date}")
                         insert_into_db(emp_id, date, in_time)
+                        # Send prediction to Raspberry Pi
+                        send_prediction_to_pi(person_name)  # New line
                     else:
                         print(f"No matching employee found for {person_name}. Skipping...")
                     processed_names.add(person_name)
-            else:
-                print("Predicted person: Unknown")
-
-            # Always send prediction to Raspberry Pi whether known or unknown
-            send_prediction_to_pi(person_name)
 
     return best_prediction[0]
-
 
 def send_prediction_to_pi(person_name):
     """Publishes the recognized person's name to the Pub/Sub topic."""
