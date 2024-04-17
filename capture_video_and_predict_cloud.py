@@ -143,6 +143,7 @@ def predict_person_from_samples(frames):
                         send_prediction_to_pi(person_name)  # New line
                     else:
                         print(f"No matching employee found for {person_name}. Skipping...")
+                        send_prediction_to_pi(person_name)
                     processed_names.add(person_name)
 
     return best_prediction[0]
