@@ -119,6 +119,7 @@ def insert_into_db(emp_id, date, current_time):
 def predict_person_from_samples(frames):
     processed_names = set()
     best_prediction = ("Unknown", 0.5)  # Initializes with "Unknown" as the default best prediction
+    
     for face in frames:
         if face is not None:
             embedding = get_embedding(face)
@@ -129,25 +130,27 @@ def predict_person_from_samples(frames):
             person_name = encoder.inverse_transform(prediction)[0] if confidence > best_prediction[1] else "Unknown"
             best_prediction = (person_name, confidence)
 
-            sl_timezone = pytz.timezone('Asia/Colombo')
-            now = datetime.now(sl_timezone)
-            date = now.strftime('%Y-%m-%d')
-            in_time = now.strftime('%H:%M:%S')
-
-            if person_name != "Unknown":
+            if person_name != "Unknown" and confidence > 0.5:  # Adjust confidence threshold as necessary
                 if person_name not in processed_names:
                     emp_id = get_emp_id_by_name(person_name)
                     if emp_id is not None:
+                        sl_timezone = pytz.timezone('Asia/Colombo')
+                        now = datetime.now(sl_timezone)
+                        date = now.strftime('%Y-%m-%d')
+                        in_time = now.strftime('%H:%M:%S')
                         print(f"Predicted person: {person_name} (Employee ID: {emp_id}) at {in_time} on {date}")
                         insert_into_db(emp_id, date, in_time)
-                    else:
-                        print(f"No matching employee found for {person_name}. Skipping...")
+                        send_prediction_to_pi(person_name)  # Send prediction to Raspberry Pi
                     processed_names.add(person_name)
-            else:
+                continue  # Skip processing this face any further after successful identification
+            
+            # For unknown faces or when the confidence is too low
+            if person_name == "Unknown":
                 print("Predicted person: Unknown")
+                send_prediction_to_pi("Unknown")  # Send 'Unknown' prediction to Raspberry Pi
 
-            # Always send prediction to Raspberry Pi whether known or unknown
-            send_prediction_to_pi(person_name)
+    return best_prediction[0]
+
 
     return best_prediction[0]
 
