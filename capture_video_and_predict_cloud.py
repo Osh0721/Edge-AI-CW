@@ -118,7 +118,7 @@ def insert_into_db(emp_id, date, current_time):
 
 def predict_person_from_samples(frames):
     processed_names = set()
-    best_prediction = ("Unknown", 0.5)  # Initialize with "Unknown" as the default best prediction
+    best_prediction = ("Unknown", 0.5)
     for face in frames:
         if face is not None:
             embedding = get_embedding(face)
@@ -129,10 +129,10 @@ def predict_person_from_samples(frames):
                 person_name = encoder.inverse_transform(prediction)[0]
                 best_prediction = (person_name, confidence)
 
-            sl_timezone = pytz.timezone('Asia/Colombo')
-            now = datetime.now(sl_timezone)
-            date = now.strftime('%Y-%m-%d')
-            in_time = now.strftime('%H:%M:%S')
+                sl_timezone = pytz.timezone('Asia/Colombo')
+                now = datetime.now(sl_timezone)
+                date = now.strftime('%Y-%m-%d')
+                in_time = now.strftime('%H:%M:%S')
 
             if best_prediction[0] != "Unknown" and best_prediction[0] not in processed_names:
                 emp_id = get_emp_id_by_name(best_prediction[0])
