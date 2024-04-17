@@ -145,7 +145,7 @@ def predict_person_from_samples(frames):
             else:
                 # Handle "Unknown" case
                 print("Unknown detected at", in_time)
-                send_prediction_to_pi("Unknown")  # Send signal to Raspberry Pi for "Unknown"
+                send_prediction_to_pi("Unknown")  # Send signal to Raspberry Pi for "Unknow"
 
     return best_prediction[0]
 
