@@ -134,18 +134,16 @@ def predict_person_from_samples(frames):
                 date = now.strftime('%Y-%m-%d')
                 in_time = now.strftime('%H:%M:%S')
 
-            if best_prediction[0] != "Unknown" and best_prediction[0] not in processed_names:
-                emp_id = get_emp_id_by_name(best_prediction[0])
-                if emp_id is not None:
-                    print(f"Predicted person: {best_prediction[0]} (Employee ID: {emp_id}) at {in_time} on {date}")
-                    insert_into_db(emp_id, date, in_time)
-                else:
-                    print(f"No matching employee found for {best_prediction[0]}. Skipping...")
-                processed_names.add(best_prediction[0])
-            else:
-                # Handle "Unknown" case
-                print("Unknown detected at", in_time)
-                send_prediction_to_pi("Unknown")  # Send signal to Raspberry Pi for "Unknow"
+                if person_name != "Unknown" and person_name not in processed_names:
+                    emp_id = get_emp_id_by_name(person_name)
+                    if emp_id is not None:
+                        print(f"Predicted person: {person_name} (Employee ID: {emp_id}) at {in_time} on {date}")
+                        insert_into_db(emp_id, date, in_time)
+                        # Send prediction to Raspberry Pi
+                        send_prediction_to_pi(person_name)  # New line
+                    else:
+                        print(f"No matching employee found for {person_name}. Skipping...")
+                    processed_names.add(person_name)
 
     return best_prediction[0]
 
