@@ -125,15 +125,17 @@ def predict_person_from_samples(frames):
             embedding = np.expand_dims(embedding, axis=0)
             prediction = model.predict(embedding)
             confidence = model.predict_proba(embedding).max()
-            if confidence > best_prediction[1]:
-                person_name = encoder.inverse_transform(prediction)[0]
-                best_prediction = (person_name, confidence)
+
+            # Determine the person's name or label it as "Unknown"
+            person_name = encoder.inverse_transform(prediction)[0] if confidence > best_prediction[1] else "Unknown"
+            best_prediction = (person_name, confidence) if confidence > best_prediction[1] else best_prediction
 
             sl_timezone = pytz.timezone('Asia/Colombo')
             now = datetime.now(sl_timezone)
             date = now.strftime('%Y-%m-%d')
             in_time = now.strftime('%H:%M:%S')
 
+            # Handle known persons
             if person_name != "Unknown" and person_name not in processed_names:
                 emp_id = get_emp_id_by_name(person_name)
                 if emp_id is not None:
@@ -141,14 +143,17 @@ def predict_person_from_samples(frames):
                     insert_into_db(emp_id, date, in_time)
                     send_prediction_to_pi(person_name)  # Send prediction to Raspberry Pi
                 else:
+                    # Handle when a person is detected but not found in the database
                     print(f"No matching employee found for {person_name}. Skipping...")
-                    send_prediction_to_pi("Unknown")  # Send "Unknown" if no DB match
+                    send_prediction_to_pi("Unknown")
                 processed_names.add(person_name)
             elif person_name == "Unknown":
+                # Handle truly unknown faces
                 print("Unknown detected at", in_time)
                 send_prediction_to_pi("Unknown")  # Send signal for "Unknown" if detected
 
     return best_prediction[0]
+
 
 
 
