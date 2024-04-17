@@ -82,32 +82,38 @@ def get_emp_id_by_name(name):
         cursor.close()
         conn.close()
 
+import mysql.connector
+from datetime import datetime
+
 def insert_into_db(emp_id, date, current_time):
+    # Convert current_time to a datetime object
+    current_time_dt = datetime.strptime(current_time, '%H:%M:%S').time()
+
     # Connect to the database
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
 
     try:
         # Check if there's already a record for today for this employee
-        check_sql = "SELECT IN-Time, OUT-Time FROM daily_records WHERE emp_id = %s AND Date = %s"
+        check_sql = "SELECT `IN-Time`, `OUT-Time` FROM daily_records WHERE emp_id = %s AND Date = %s"
         cursor.execute(check_sql, (emp_id, date))
         result = cursor.fetchone()
 
         if result:
             # Record exists, update the OUT-Time
-            if result[1] is None or current_time > result[1]:  # Only update if the new OUT-Time is later
-                update_sql = "UPDATE daily_records SET OUT-Time = %s WHERE emp_id = %s AND Date = %s"
-                cursor.execute(update_sql, (current_time, emp_id, date))
+            if result[1] is None or current_time_dt > result[1]:  # Only update if the new OUT-Time is later
+                update_sql = "UPDATE daily_records SET `OUT-Time` = %s WHERE emp_id = %s AND Date = %s"
+                cursor.execute(update_sql, (current_time_dt, emp_id, date))
                 conn.commit()
-                print(f"OUT-Time updated for employee ID {emp_id} to {current_time} on {date}")
+                print(f"OUT-Time updated for employee ID {emp_id} to {current_time_dt} on {date}")
             else:
-                print(f"Existing OUT-Time {result[1]} is later than the current time {current_time}. No update needed.")
+                print(f"Existing OUT-Time {result[1]} is later than the current time {current_time_dt}. No update needed.")
         else:
             # No record exists, insert new IN-Time
-            insert_sql = "INSERT INTO daily_records (emp_id, Date, IN-Time) VALUES (%s, %s, %s)"
-            cursor.execute(insert_sql, (emp_id, date, current_time))
+            insert_sql = "INSERT INTO daily_records (emp_id, Date, `IN-Time`) VALUES (%s, %s, %s)"
+            cursor.execute(insert_sql, (emp_id, date, current_time_dt))
             conn.commit()
-            print(f"IN-Time recorded for employee ID {emp_id} at {current_time} on {date}")
+            print(f"IN-Time recorded for employee ID {emp_id} at {current_time_dt} on {date}")
     except mysql.connector.Error as err:
         print(f"Failed to update record: {err}")
     finally:
