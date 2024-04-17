@@ -109,7 +109,7 @@ def insert_into_db(emp_id, date, current_time):
             conn.commit()
             print(f"IN-Time recorded for employee ID {emp_id} at {current_time} on {date}")
     except mysql.connector.Error as err:
-        print(f"Failed to update record: {err}")
+        print(f"Failed to update recor: {err}")
     finally:
         cursor.close()
         conn.close()
