@@ -89,7 +89,7 @@ def insert_into_db(emp_id, date, current_time):
 
     try:
         # Check if there's already a record for today for this employee
-        check_sql = "SELECT IN-Time, OUT-Time FROM daily_records WHERE emp_id = %s AND Date = %s"
+        check_sql = "SELECT `IN-Time`, `OUT-Time` FROM daily_records WHERE emp_id = %s AND Date = %s"
         cursor.execute(check_sql, (emp_id, date))
         result = cursor.fetchone()
 
