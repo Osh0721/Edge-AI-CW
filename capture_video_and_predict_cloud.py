@@ -150,7 +150,6 @@ def predict_person_from_samples(frames):
             send_prediction_to_pi(person_name)
 
     return best_prediction[0]
-
 def send_prediction_to_pi(person_name):
     """Publishes the recognized person's name to the Pub/Sub topic."""
     data = {'result': person_name}
