@@ -9,7 +9,7 @@ repo_path = '/home/samanerendra/Edge-AI-CW'
 os.chdir(repo_path)
 
 # Pull the latest changes from the repository
-# subprocess.run(['git', 'pull'], check=True)
+subprocess.run(['git', 'pull'], check=True)
 
 # Now call the main functionality script
 subprocess.run([sys.executable, 'capture_video_and_predict_cloud.py'])
