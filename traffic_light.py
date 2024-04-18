@@ -1,27 +1,18 @@
+import time
 import RPi.GPIO as GPIO
-import psutil
 
-GREEN = 26
-YELLOW = 13
-RED = 19
+class Led:
+	def __init__(self, pinNumber, name, duration):
+		self.pinNumber = pinNumber
+		self.name = name
+		self.duration = duration
+		GPIO.setup(pinNumber,GPIO.OUT)
+	
+	def on (self):
+		print(self.name + " on")
+		GPIO.output(self.pinNumber, GPIO.HIGH)
 
-# Pin Setup:
-GPIO.setmode(GPIO.BCM)  
-GPIO.setwarnings(False)
-GPIO.setup(GREEN, GPIO.OUT)
-GPIO.setup(YELLOW, GPIO.OUT)
-GPIO.setup(RED, GPIO.OUT)
-
-try:
-   while (1):
-      cpu_pc = psutil.cpu_percent(interval=2)
-      print ('CPU: %d%%') % (cpu_pc)
-      if (cpu_pc ==90) :
-         GPIO.output(GREEN, False)
-         GPIO.output(YELLOW, False)
-         GPIO.output(RED, True)
-except KeyboardInterrupt:
-    print ("Good bye")
-    GPIO.output(GREEN, False)
-    GPIO.output(YELLOW, False)
-    GPIO.output(RED, False)
+	def off (self):
+		time.sleep(self.duration)
+		print(self.name + " off")
+		GPIO.output(self.pinNumber, GPIO.LOW)
