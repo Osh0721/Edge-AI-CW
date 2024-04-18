@@ -34,8 +34,8 @@ try:
         # Check if distance is less than or equal to 1 centimeter
         if 0.1 < dist <= 1:
             print("Distance:", dist, "cm")
-            # Execute the shell commands to capture video and push to GitHub
 
+            # Execute the shell commands to capture video and push to GitHub
             subprocess.run([
                 "ffmpeg", "-f", "v4l2", "-video_size", "1280x720", "-i", "/dev/video0", "-t", "2",
                 "/home/admin/videos/captured_video.mp4"
