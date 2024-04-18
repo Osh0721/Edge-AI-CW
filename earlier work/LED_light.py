@@ -1,26 +1,27 @@
+# Import time, GPIO, and new Led class
+import time
 import RPi.GPIO as GPIO
-import psutil
+from led import Led
 
-GREEN = 26
-YELLOW = 13
-RED = 19
-
-# Pin Setup:
-GPIO.setmode(GPIO.BCM)   # Broadcom pin-numbering scheme.
+GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
-GPIO.setup(GREEN, GPIO.OUT)
-GPIO.setup(YELLOW, GPIO.OUT)
-GPIO.setup(RED, GPIO.OUT)
 
-try:
-   while (1):
-      cpu_pc = psutil.cpu_percent(interval=2)
-      if (cpu_pc ==90) :
-         GPIO.output(GREEN, False)
-         GPIO.output(YELLOW, False)
-         GPIO.output(RED, True)
-except KeyboardInterrupt:
-    print ("Good bye")
-    GPIO.output(GREEN, False)
-    GPIO.output(YELLOW, False)
-    GPIO.output(RED, False)
+# Create variables to hold the 3 LEDs
+redled = Led(18, "RED", 5)
+yellowled = Led(8, "YELLOW", 2) 
+greenled = Led(20, "GREEN", 5)
+
+#start traffic sequence
+redled.on()
+redled.off()
+
+greenled.on()
+greenled.off()
+
+yellowled.on()
+yellowled.off()
+
+redled.on()
+redled.off()
+
+GPIO.cleanup()
