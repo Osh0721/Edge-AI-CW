@@ -104,15 +104,16 @@ def insert_into_db(emp_id, date, current_time):
                 print(f"Existing OUT-Time {result[1]} is later than the current time {current_time}. No update needed.")
         else:
             # No record exists, insert new IN-Time
-            insert_sql = "INSERT INTO daily_records (emp_id, Date, IN-Time) VALUES (%s, %s, %s)"
+            insert_sql = "INSERT INTO daily_records (emp_id, Date, `IN-Time`) VALUES (%s, %s, %s)"
             cursor.execute(insert_sql, (emp_id, date, current_time))
             conn.commit()
             print(f"IN-Time recorded for employee ID {emp_id} at {current_time} on {date}")
     except mysql.connector.Error as err:
-        print(f"Failed to update recor: {err}")
+        print(f"Failed to update record: {err}")
     finally:
         cursor.close()
         conn.close()
+
 
 
 
