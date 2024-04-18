@@ -57,7 +57,7 @@ try:
         else:
             print("Distance:", dist, "m")
             print("Please move bit towrds the camera")
-            time.sleep(4)  # Wait for 4 seconds before checking again
+            time.sleep(4)  
 
 except KeyboardInterrupt:
     # Clean up GPIO
