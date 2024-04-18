@@ -33,7 +33,7 @@ try:
 
         # Check if distance is less than or equal to 1 meter
         if 0.1 < dist <= 1:
-            print("Distance:", dist, "m")
+            print("Distance:", dist, "cm")
             # Execute the shell commands to capture video and push to GitHub
 
             subprocess.run([
