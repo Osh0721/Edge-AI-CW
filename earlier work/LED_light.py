@@ -10,6 +10,7 @@ GPIO.setwarnings(False)
 redled = Led(18, "RED", 5)
 yellowled = Led(8, "YELLOW", 2) 
 greenled = Led(20, "GREEN", 5)
+# print("")
 
 #start traffic sequence
 redled.on()
