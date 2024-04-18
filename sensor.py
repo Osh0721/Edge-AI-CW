@@ -31,7 +31,7 @@ try:
         # Measure distance in centimeters
         dist = measure_distance()
 
-        # Check if distance is less than or equal to 1 meter
+        # Check if distance is less than or equal to 1 centimeter
         if 0.1 < dist <= 1:
             print("Distance:", dist, "cm")
             # Execute the shell commands to capture video and push to GitHub
