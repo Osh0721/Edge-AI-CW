@@ -28,7 +28,7 @@ def measure_distance():
 
 try:
     while True:
-        # Measure distance in meters
+        # Measure distance in centimeters
         dist = measure_distance()
 
         # Check if distance is less than or equal to 1 meter
